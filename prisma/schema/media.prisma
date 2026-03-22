@@ -1,0 +1,28 @@
+model Media {
+    id            String    @id @default(uuid())
+    title         String
+    description   String?
+    releaseYear   Int?
+    director      String?
+    cast          String[]
+    platform      String[]
+    priceType     PriceType
+    streamingLink String
+
+    averageRating Float @default(0.0)
+    reviewCount   Int   @default(0)
+
+    reviews   Review[]
+    watchlist Watchlist[]
+    genres    MediaGenre[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("media")
+}
+
+enum PriceType {
+    FREE
+    PREMIUM
+}

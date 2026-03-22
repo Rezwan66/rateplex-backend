@@ -7,3 +7,5 @@ dist
 /src/generated
 .vercel
 .vscode
+
+/generated/prisma

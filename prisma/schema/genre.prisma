@@ -1,0 +1,27 @@
+model Genre {
+    id   String @id @default(uuid())
+    name String @unique
+
+    media MediaGenre[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([name], name: "idx_genre_name")
+    @@map("genre")
+}
+
+model MediaGenre {
+    id      String @id @default(uuid())
+    mediaId String
+    genreId String
+
+    // Relations
+    media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([mediaId, genreId])
+    @@index([mediaId], name: "idx_media_genre_mediaId")
+    @@index([genreId], name: "idx_media_genre_genreId")
+    @@map("media_genres")
+}

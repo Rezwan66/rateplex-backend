@@ -1,0 +1,29 @@
+model Subscription {
+    id     String @id @default(uuid())
+    userId String
+
+    plan      SubscriptionPlan
+    status    SubscriptionStatus
+    paymentId String
+
+    startDate DateTime
+    endDate   DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId], name: "idx_subscription_userId")
+    @@map("subscriptions")
+}
+
+enum SubscriptionPlan {
+    MONTHLY
+    YEARLY
+}
+
+enum SubscriptionStatus {
+    ACTIVE
+    EXPIRED
+}
