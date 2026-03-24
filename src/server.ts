@@ -1,4 +1,3 @@
-import express, { Application, Request, Response } from 'express';
 import app from './app';
 
 const bootstrap = async () => {
