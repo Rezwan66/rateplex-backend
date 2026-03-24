@@ -27,3 +27,8 @@ export interface ICreateUserPayload {
   email: string;
   password: string;
 }
+
+export interface ILoginUserPayload {
+  email: string;
+  password: string;
+}
