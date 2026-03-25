@@ -3,6 +3,7 @@ import AppError from '../../errorHandling/AppError';
 import { prisma } from '../../lib/prisma';
 import { ICreateUserPayload, ILoginUserPayload } from './user.interface';
 import bcrypt from 'bcrypt';
+import { tokenUtils } from '../../utils/token';
 
 const createUser = async (payload: ICreateUserPayload) => {
   const userExists = await prisma.user.findUnique({
@@ -29,7 +30,15 @@ const createUser = async (payload: ICreateUserPayload) => {
 
   // delete result.password;
 
-  return result;
+  // Create access token
+  const accessToken = tokenUtils.getAccessToken({
+    userId: result.id,
+    role: result.role,
+    name: result.name,
+    email: result.email,
+  });
+
+  return { ...result, accessToken };
 };
 
 const loginUser = async (payload: ILoginUserPayload) => {
@@ -52,7 +61,19 @@ const loginUser = async (payload: ILoginUserPayload) => {
 
   //TODO: create access and refresh tokens
 
-  return { isPasswordMatched };
+  // Create access token
+  const accessToken = tokenUtils.getAccessToken({
+    userId: userExists.id,
+    role: userExists.role,
+    name: userExists.name,
+    email: userExists.email,
+  });
+
+  // Return user without password
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { password, ...userWithoutPassword } = userExists;
+
+  return { ...userWithoutPassword, accessToken };
 };
 
 export const UserService = {
