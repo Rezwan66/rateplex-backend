@@ -1,41 +1,43 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenAI } from '@google/genai';
 import status from 'http-status';
 import { prisma } from '../../config/prisma.js';
 import { envVars } from '../../config/env.js';
 import AppError from '../../utils/AppError.js';
 import logger from '../../utils/logger.js';
 
-// ─── Anthropic client ───────────────────────────────────────────
+// ─── Gemini client ──────────────────────────────────────────────
 const getClient = () => {
-  if (!envVars.ANTHROPIC_API_KEY || envVars.ANTHROPIC_API_KEY === 'your_anthropic_api_key') {
+  if (!envVars.GEMINI_API_KEY || envVars.GEMINI_API_KEY === 'your_gemini_api_key') {
     throw new AppError(
       status.SERVICE_UNAVAILABLE,
-      'AI service is not configured. Please set ANTHROPIC_API_KEY.',
+      'AI service is not configured. Please set GEMINI_API_KEY.',
     );
   }
-  return new Anthropic({ apiKey: envVars.ANTHROPIC_API_KEY });
+  return new GoogleGenAI({ apiKey: envVars.GEMINI_API_KEY });
 };
 
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = 'gemini-2.5-flash-preview-04-17';
 
-// ─── Helper: call Claude and parse JSON ─────────────────────────
-const callClaude = async (systemPrompt: string, userMessage: string): Promise<string> => {
+// ─── Helper: call Gemini and return text ────────────────────────
+const callGemini = async (systemPrompt: string, userMessage: string): Promise<string> => {
   const client = getClient();
 
   try {
-    const message = await client.messages.create({
+    const response = await client.models.generateContent({
       model: MODEL,
-      max_tokens: 2048,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
+      contents: userMessage,
+      config: {
+        systemInstruction: systemPrompt,
+        maxOutputTokens: 2048,
+      },
     });
 
-    const textBlock = message.content.find((block) => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
+    const text = response.text;
+    if (!text) {
       throw new AppError(status.INTERNAL_SERVER_ERROR, 'AI returned no text response.');
     }
 
-    return textBlock.text;
+    return text;
   } catch (error) {
     if (error instanceof AppError) throw error;
     logger.error('AI service error:', error);
@@ -44,7 +46,7 @@ const callClaude = async (systemPrompt: string, userMessage: string): Promise<st
 };
 
 const parseJsonResponse = <T>(text: string): T => {
-  // Extract JSON from markdown code blocks if present
+  // Strip markdown code fences if Gemini wraps the JSON
   const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   const jsonStr = jsonMatch ? jsonMatch[1].trim() : text.trim();
 
@@ -64,14 +66,11 @@ interface Recommendation {
 }
 
 const getRecommendations = async (userId: string) => {
-  // Fetch user's watchlist with ratings
   const watchlist = await prisma.watchlist.findMany({
     where: { userId },
     include: {
       media: {
-        include: {
-          genres: { include: { genre: true } },
-        },
+        include: { genres: { include: { genre: true } } },
       },
     },
     take: 20,
@@ -118,7 +117,7 @@ Each recommendation should have:
 - matchScore: 0-100 confidence score
 - genre: primary genre`;
 
-  const text = await callClaude(systemPrompt, userMessage);
+  const text = await callGemini(systemPrompt, userMessage);
   return parseJsonResponse<{ recommendations: Recommendation[] }>(text);
 };
 
@@ -133,25 +132,27 @@ const chat = async (message: string, history: ChatMessage[]) => {
 
   const systemPrompt = `You are RatePlex's AI assistant. Help users discover movies, series, and anime. Answer questions about content, suggest what to watch, and explain ratings. Be concise and friendly. Keep responses under 200 words.`;
 
-  const messages = [
-    ...history.map((h) => ({
-      role: h.role as 'user' | 'assistant',
-      content: h.content,
-    })),
-    { role: 'user' as const, content: message },
-  ];
+  // Build conversation history as a single prompt for Gemini
+  const conversationHistory = history
+    .map((h) => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`)
+    .join('\n');
+
+  const fullMessage = conversationHistory
+    ? `${conversationHistory}\nUser: ${message}`
+    : message;
 
   try {
-    const response = await client.messages.create({
+    const response = await client.models.generateContent({
       model: MODEL,
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages,
+      contents: fullMessage,
+      config: {
+        systemInstruction: systemPrompt,
+        maxOutputTokens: 1024,
+      },
     });
 
-    const textBlock = response.content.find((block) => block.type === 'text');
     return {
-      reply: textBlock && textBlock.type === 'text' ? textBlock.text : 'I could not generate a response.',
+      reply: response.text ?? 'I could not generate a response.',
     };
   } catch (error) {
     logger.error('AI chat error:', error);
@@ -217,7 +218,7 @@ Return JSON in this exact format:
   "insight": "A 2-3 sentence insight about their viewing preferences and patterns"
 }`;
 
-  const text = await callClaude(systemPrompt, userMessage);
+  const text = await callGemini(systemPrompt, userMessage);
   return parseJsonResponse<TasteProfile>(text);
 };
 
@@ -269,7 +270,7 @@ Return JSON in this exact format:
 
 sentimentScore should be 0-100 (0 = very negative, 100 = very positive)`;
 
-  const text = await callClaude(systemPrompt, userMessage);
+  const text = await callGemini(systemPrompt, userMessage);
   return parseJsonResponse<SentimentResult>(text);
 };
 
@@ -303,7 +304,7 @@ Return JSON in this exact format:
   "ageRating": "PG-13"
 }`;
 
-  const text = await callClaude(systemPrompt, userMessage);
+  const text = await callGemini(systemPrompt, userMessage);
   return parseJsonResponse<AutoTagResult>(text);
 };
 

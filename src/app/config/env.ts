@@ -24,7 +24,7 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().default(''),
 
   // AI
-  ANTHROPIC_API_KEY: z.string().default(''),
+  GEMINI_API_KEY: z.string().default(''),
 
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: z.string().default(''),
