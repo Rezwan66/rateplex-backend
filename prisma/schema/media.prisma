@@ -1,28 +1,50 @@
 model Media {
-    id            String    @id @default(uuid())
-    title         String
-    description   String?
-    releaseYear   Int?
-    director      String?
-    cast          String[]
-    platform      String[]
-    priceType     PriceType
-    streamingLink String
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  releaseYear   Int?
+  director      String?
+  cast          String[]
+  platform      String[]
+  priceType     PriceType
+  streamingLink String?
+  type          MediaType   @default(MOVIE)
+  status        MediaStatus @default(RELEASED)
+  posterUrl     String?
+  trailerUrl    String?
+  duration      Int? // in minutes, for movies
+  episodes      Int? // for series/anime
+  seasons       Int? // for series/anime
+  country       String?
+  language      String?
 
-    averageRating Float @default(0.0)
-    reviewCount   Int   @default(0)
+  averageRating Float @default(0.0)
+  reviewCount   Int   @default(0)
 
-    reviews   Review[]
-    watchlist Watchlist[]
-    genres    MediaGenre[]
+  reviews   Review[]
+  watchlist Watchlist[]
+  genres    MediaGenre[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@map("media")
+  @@map("media")
 }
 
 enum PriceType {
-    FREE
-    PREMIUM
+  FREE
+  PREMIUM
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+  ANIME
+}
+
+enum MediaStatus {
+  RELEASED
+  ONGOING
+  UPCOMING
+  CANCELLED
 }

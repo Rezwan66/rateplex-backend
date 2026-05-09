@@ -1,16 +1,25 @@
 model Watchlist {
-    id      String @id @default(uuid())
-    userId  String
-    mediaId String
+  id      String        @id @default(uuid())
+  userId  String
+  mediaId String
+  status  WatchStatus   @default(PLAN_TO_WATCH)
 
-    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@unique([userId, mediaId]) // One watchlist per user
-    @@index([userId], name: "idx_watchlist_userId")
-    @@index([mediaId], name: "idx_watchlist_mediaId")
-    @@map("watchlist")
+  @@unique([userId, mediaId])
+  @@index([userId], name: "idx_watchlist_userId")
+  @@index([mediaId], name: "idx_watchlist_mediaId")
+  @@map("watchlist")
+}
+
+enum WatchStatus {
+  WATCHING
+  COMPLETED
+  PLAN_TO_WATCH
+  ON_HOLD
+  DROPPED
 }

@@ -1,23 +1,27 @@
 model User {
-    id            String         @id @default(uuid())
-    name          String
-    email         String         @unique
-    password      String
-    role          Role           @default(USER)
-    reviews       Review[]
-    likes         Like[]
-    comments      Comment[]
-    watchlist     Watchlist[]
-    subscriptions Subscription[]
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
+  password String?        // nullable for Google OAuth users
+  googleId String? @unique
+  avatar   String?
+  bio      String?
+  role     Role    @default(USER)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  reviews       Review[]
+  likes         Like[]
+  comments      Comment[]
+  watchlist     Watchlist[]
+  subscriptions Subscription[]
 
-    @@index([email], name: "idx_user_email")
-    @@map("users")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email], name: "idx_user_email")
+  @@map("users")
 }
 
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }

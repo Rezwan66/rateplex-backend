@@ -1,46 +1,45 @@
 import dotenv from 'dotenv';
-import { AppError } from '../errorHandling';
-import status from 'http-status';
+import { z } from 'zod';
 
 dotenv.config();
 
-interface EnvConfig {
-  // NODE_ENV: string;
-  PORT: string;
-  DATABASE_URL: string;
-  FRONTEND_URL: string;
-  JWT_ACCESS_TOKEN_SECRET: string;
-  JWT_ACCESS_TOKEN_EXPIRY: string;
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  PORT: z.coerce.number().default(5000),
+  DATABASE_URL: z.string({ error: 'DATABASE_URL is required' }),
+
+  // JWT
+  JWT_ACCESS_SECRET: z.string({ error: 'JWT_ACCESS_SECRET is required' }),
+  JWT_REFRESH_SECRET: z.string({ error: 'JWT_REFRESH_SECRET is required' }),
+  JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+
+  // Frontend
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
+
+  // Google OAuth
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().default(''),
+
+  // AI
+  ANTHROPIC_API_KEY: z.string().default(''),
+
+  // Cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().default(''),
+  CLOUDINARY_API_KEY: z.string().default(''),
+  CLOUDINARY_API_SECRET: z.string().default(''),
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  console.error(
+    '❌ Invalid environment variables:',
+    parsed.error.flatten().fieldErrors,
+  );
+  process.exit(1);
 }
 
-const loadEnvVariables = (): EnvConfig => {
-  const requireEnvVariable = [
-    // 'NODE_ENV',
-    'PORT',
-    'DATABASE_URL',
-    'FRONTEND_URL',
-    'JWT_ACCESS_TOKEN_SECRET',
-    'JWT_ACCESS_TOKEN_EXPIRY',
-  ];
-
-  requireEnvVariable.forEach(variable => {
-    if (!process.env[variable]) {
-      // throw new Error(`Environment variable ${variable} is required but not set in .env file.`);
-      throw new AppError(
-        status.INTERNAL_SERVER_ERROR,
-        `Environment variable ${variable} is required but not set in .env file.`,
-      );
-    }
-  });
-
-  return {
-    // NODE_ENV: process.env.NODE_ENV as string,
-    PORT: process.env.PORT as string,
-    DATABASE_URL: process.env.DATABASE_URL as string,
-    FRONTEND_URL: process.env.FRONTEND_URL as string,
-    JWT_ACCESS_TOKEN_SECRET: process.env.JWT_ACCESS_TOKEN_SECRET as string,
-    JWT_ACCESS_TOKEN_EXPIRY: process.env.JWT_ACCESS_TOKEN_EXPIRY as string,
-  };
-};
-
-export const envVars = loadEnvVariables();
+export const envVars = parsed.data;
