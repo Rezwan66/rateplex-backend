@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ─── Rate Limiter ───────────────────────────────────────────────
-const apiPrefix = envVars.NODE_ENV === 'production' ? '/v1' : '/api/v1';
+const apiPrefix = '/api/v1';
 app.use(apiPrefix, generalLimiter);
 
 // ─── Request Logger ─────────────────────────────────────────────
