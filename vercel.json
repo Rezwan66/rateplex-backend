@@ -1,10 +1,9 @@
 {
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install",
-  "routes": [
-    {
-      "src": "^/$",
-      "dest": "/api"
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
     }
-  ]
+  }
 }
