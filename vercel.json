@@ -1,4 +1,10 @@
 {
   "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install"
+  "installCommand": "pnpm install",
+  "routes": [
+    {
+      "src": "^/$",
+      "dest": "/api"
+    }
+  ]
 }
