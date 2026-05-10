@@ -3,15 +3,15 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "es2023",
-    "baseUrl": ".",
     "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    // "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "ignoreDeprecations": "6.0",
