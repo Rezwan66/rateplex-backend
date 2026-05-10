@@ -1,9 +1,4 @@
 {
   "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node"
-    }
-  }
+  "installCommand": "pnpm install"
 }
