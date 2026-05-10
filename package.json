@@ -14,7 +14,8 @@
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "deploy:commit": "git add . && git commit -m \"chore: edit deployment settings for vercel deploy\" && git push"
   },
   "keywords": [],
   "author": "",
