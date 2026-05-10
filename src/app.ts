@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ─── Rate Limiter ───────────────────────────────────────────────
-app.use('/api/v1', generalLimiter);
+app.use(['/api/v1', '/v1'], generalLimiter);
 
 // ─── Request Logger ─────────────────────────────────────────────
 app.use((req: Request, _res: Response, next) => {
@@ -80,7 +80,7 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // ─── API Routes ─────────────────────────────────────────────────
-app.use('/api/v1', IndexRoutes);
+app.use(['/api/v1', '/v1'], IndexRoutes);
 
 // ─── Global Error Handler ───────────────────────────────────────
 app.use(globalErrorHandler);
