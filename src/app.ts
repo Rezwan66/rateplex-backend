@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ─── Rate Limiter ───────────────────────────────────────────────
-const apiPrefix = envVars.NODE_ENV === 'production' ? '/' : '/api/v1';
+const apiPrefix = envVars.NODE_ENV === 'production' ? '/v1' : '/api/v1';
 app.use(apiPrefix, generalLimiter);
 
 // ─── Request Logger ─────────────────────────────────────────────
@@ -42,8 +42,7 @@ app.use((req: Request, _res: Response, next) => {
 });
 
 // ─── Health Check ───────────────────────────────────────────────
-const healthPath = envVars.NODE_ENV === 'production' ? '/health' : '/';
-app.get(healthPath, (_req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
