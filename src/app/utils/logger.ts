@@ -1,27 +1,26 @@
 import { createLogger, format, transports } from 'winston';
 
+const { combine, timestamp, errors, json, colorize, printf } = format;
+
+const devFormat = printf(({ level, message, timestamp, ...meta }) => {
+  const metaStr = Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+  return `${timestamp} [${level}]: ${message}${metaStr}`;
+});
+
 const logger = createLogger({
   level: 'info',
-  format: format.combine(
-    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    format.errors({ stack: true }),
-    format.json(),
+  format: combine(
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    errors({ stack: true }),
+    json(),
   ),
   defaultMeta: { service: 'rateplex-api' },
   transports: [
-    // Console-only in all environments (Vercel has no writable filesystem)
     new transports.Console({
       format:
         process.env.NODE_ENV !== 'production'
-          ? format.combine(
-              format.colorize(),
-              format.printf(({ level, message, timestamp, ...meta }) => {
-                const metaStr =
-                  Object.keys(meta).length > 1 ? ` ${JSON.stringify(meta)}` : '';
-                return `${timestamp as string} [${level}]: ${message as string}${metaStr}`;
-              }),
-            )
-          : format.combine(format.timestamp(), format.json()),
+          ? combine(colorize(), devFormat)
+          : combine(timestamp(), json()),
     }),
   ],
 });

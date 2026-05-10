@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "es2023",
+    "baseUrl": ".",
     "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "ignoreDeprecations": "6.0",
-  "include": ["src", "prisma.config.ts"],
+  "include": ["src", "api", "prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

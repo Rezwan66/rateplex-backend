@@ -1,6 +1,6 @@
-import app from './app';
-import { envVars } from './app/config/env';
-import logger from './app/utils/logger';
+import app from './app.js';
+import { envVars } from './app/config/env.js';
+import logger from './app/utils/logger.js';
 
 const bootstrap = async () => {
   try {
