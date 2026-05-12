@@ -15,7 +15,7 @@
     "generate": "prisma generate",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "deploy:commit": "git add . && git commit -m \"chore: edit deployment settings for vercel deploy\" && git push"
+    "deploy:commit": "git add . && git commit -m \"lint: fix no unused vars for eslint setting\" && git push"
   },
   "keywords": [],
   "author": "",

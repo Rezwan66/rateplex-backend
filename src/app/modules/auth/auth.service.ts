@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import status from 'http-status';
 import bcrypt from 'bcrypt';
 import { prisma } from '../../config/prisma.js';
